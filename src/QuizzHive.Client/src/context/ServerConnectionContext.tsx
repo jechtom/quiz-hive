@@ -2,29 +2,30 @@
 
 import React, { useContext, createContext, useState } from 'react'
 import { ConnectionState, ConnectionStates, useSignalR } from './useSignalR'
+import { CreateDefaultSessionState, SessionStateContext } from './SessionContext';
+import { ISessionState } from './types';
 
-export const SignalRContext = createContext({
+export const ServerConnectionContext = createContext({
   state: ConnectionStates.Disconnected,
   proxy: {
     enterCode: (code: string) => {},
     enterName: (name: string) => {},
     enterAnswer: (code: string) => {}
-  },
-  gameState: {}
+  }
 })
 
-export type SignalRProviderProps = {
+export type ServerConnectionProviderProps = {
   children?: React.ReactNode
   baseUrl: string
 }
 
-const SignalRProvider: React.FC<SignalRProviderProps> = ({
+export const ServerConnectionProvider: React.FC<ServerConnectionProviderProps> = ({
     children,
     baseUrl
 }) => {
   const [connectionState, setConnectionState] = useState<ConnectionState>(ConnectionStates.Disconnected)
-  const [gameState, setGameState] = useState<any>(null)
 
+  const [sessionState, setSessionState] = useState<ISessionState>(CreateDefaultSessionState)
   
   const signalR = useSignalR({
     url: baseUrl + "/hub",
@@ -41,9 +42,9 @@ const SignalRProvider: React.FC<SignalRProviderProps> = ({
         message: 'UpdateStateMessage',
         handler: (data) => {
           //alert('new state!');
-          var newGameState = data?.[data?.length - 1];
+          var newGameState = data?.[data?.length - 1] as ISessionState;
           console.log(newGameState);
-          setGameState(newGameState);
+          setSessionState(newGameState);
         }
       }
     ],
@@ -65,8 +66,10 @@ const SignalRProvider: React.FC<SignalRProviderProps> = ({
   };
 
   return (
-    <SignalRContext.Provider value={{ state: connectionState, proxy: proxy, gameState: gameState }}>{children}</SignalRContext.Provider>
+    <ServerConnectionContext.Provider value={{ state: connectionState, proxy: proxy }}>
+      <SessionStateContext.Provider value={sessionState}>
+        {children}
+      </SessionStateContext.Provider>
+    </ServerConnectionContext.Provider>
   )
 }
-
-export default SignalRProvider

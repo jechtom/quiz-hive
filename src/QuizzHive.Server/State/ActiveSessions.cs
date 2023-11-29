@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace QuizzHive.Server.Services
+namespace QuizzHive.Server.State
 {
     public record class ActiveSessions
     {
@@ -11,21 +11,21 @@ namespace QuizzHive.Server.Services
         /// <summary>
         /// Gets map of connect codes to session Ids.
         /// </summary>
-        public ImmutableDictionary<string, string> ConnectCodesToSessionId { get; init; } 
+        public ImmutableDictionary<string, string> ConnectCodesToSessionId { get; init; }
             = ImmutableDictionary<string, string>.Empty.WithComparers(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Gets map of action session Ids.
         /// </summary>
-        public ImmutableHashSet<string> ActiveSessionsIds { get; init; } 
+        public ImmutableHashSet<string> ActiveSessionsIds { get; init; }
             = ImmutableHashSet<string>.Empty.WithComparer(StringComparer.OrdinalIgnoreCase);
 
-        
+
         public static ActiveSessions Empty { get; } = new ActiveSessions();
 
         public ActiveSessions WithAddSession(string sessionId, string connectCode)
         {
-            if(ActiveSessionsIds.Contains(sessionId))
+            if (ActiveSessionsIds.Contains(sessionId))
             {
                 throw new InvalidOperationException("Session with given Id already exists.");
             }

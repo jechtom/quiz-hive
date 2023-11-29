@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
+using QuizzHive.Server.Services;
 
-namespace QuizzHive.Server.Services
+namespace QuizzHive.Server.State
 {
     public abstract record class SessionSegment
     {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using QuizzHive.Server.DataLayer;
 using QuizzHive.Server.Services;
+using QuizzHive.Server.State;
 using System.Text.RegularExpressions;
 
 namespace QuizzHive.Server.Hubs
@@ -69,12 +70,7 @@ namespace QuizzHive.Server.Hubs
                 // try add player to the session
                 bool result = await sessionActionDispatcher.TryDispatchActionAsync(
                     sessionId,
-                    s => SessionActions.TryConnectWithCode(s, Context.ConnectionId, code),
-                    async s =>
-                    {
-                        // add to session group
-                        await Groups.AddToGroupAsync(Context.ConnectionId, s.SessionId);
-                    }
+                    s => SessionActions.TryConnectWithCode(s, Context.ConnectionId, code)
                 );
 
                 if(!result)
@@ -85,6 +81,7 @@ namespace QuizzHive.Server.Hubs
             catch
             {
                 clientsManager.RemoveSessionLink(Context.ConnectionId, sessionId);
+                throw;
             }
         }
 

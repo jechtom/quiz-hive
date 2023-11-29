@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.DataProtection;
 using QuizzHive.Server;
 using QuizzHive.Server.DataLayer;
 using QuizzHive.Server.Hubs;
 using QuizzHive.Server.Services;
+using QuizzHive.Server.State;
 
 var builder = WebApplication
     .CreateBuilder(new WebApplicationOptions()
@@ -14,7 +16,6 @@ var builder = WebApplication
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache();
 builder.Services.AddSignalR();
-
 builder.Services.AddSingleton<SessionCodeGenerator>();
 builder.Services.AddSingleton<ClientsManager>();
 builder.Services.AddScoped<IRepository<Session>, FileRepository<Session>>();

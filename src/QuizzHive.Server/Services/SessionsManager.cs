@@ -1,4 +1,5 @@
 ﻿using QuizzHive.Server.DataLayer;
+using QuizzHive.Server.State;
 
 namespace QuizzHive.Server.Services
 {

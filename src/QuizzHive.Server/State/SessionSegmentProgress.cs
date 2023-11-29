@@ -1,4 +1,4 @@
-﻿namespace QuizzHive.Server.Services
+﻿namespace QuizzHive.Server.State
 {
     public record class SessionSegmentProgress
     {

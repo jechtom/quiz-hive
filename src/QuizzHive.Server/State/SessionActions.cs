@@ -1,4 +1,4 @@
-﻿namespace QuizzHive.Server.Services
+﻿namespace QuizzHive.Server.State
 {
     public static class SessionActions
     {
@@ -6,7 +6,7 @@
         {
             code = code?.ToLowerInvariant() ?? string.Empty;
 
-            if(!session.CanConnect || string.IsNullOrEmpty(session.JoinCode))
+            if (!session.CanConnect || string.IsNullOrEmpty(session.JoinCode))
             {
                 // this session don't allow new players
                 return session;
@@ -73,7 +73,7 @@
                 return session;
             }
 
-            if(playerInSession.IsNameSet)
+            if (playerInSession.IsNameSet)
             {
                 // name already set
                 return session;

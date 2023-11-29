@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using QuizzHive.Server.DataLayer;
 using QuizzHive.Server.Hubs;
+using QuizzHive.Server.State;
 
 namespace QuizzHive.Server.Services
 {
@@ -20,7 +21,7 @@ namespace QuizzHive.Server.Services
             this.hub = hub;
         }
 
-        public async Task<bool> TryDispatchActionAsync(string sessionId, Func<Session, Session> updateAction, Func<Session, Task>? afterActionAsync = null)
+        public async Task<bool> TryDispatchActionAsync(string sessionId, Func<Session, Session> updateAction)
         {
             Session? sessionUpdated;
 
@@ -54,9 +55,7 @@ namespace QuizzHive.Server.Services
                 }
             }
 
-            await (afterActionAsync?.Invoke(sessionUpdated) ?? Task.CompletedTask);
-
-
+            // distribute new state to connected clients
             foreach (var player in sessionUpdated.Players.Values.Where(p => !p.IsDisconnected))
             {
                 var state = sessionUpdated.ResolveStateForClient(player);

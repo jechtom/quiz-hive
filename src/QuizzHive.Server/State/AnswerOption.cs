@@ -1,4 +1,6 @@
-﻿namespace QuizzHive.Server.Services
+﻿using QuizzHive.Server.Services;
+
+namespace QuizzHive.Server.State
 {
     public record class AnswerOption
     {

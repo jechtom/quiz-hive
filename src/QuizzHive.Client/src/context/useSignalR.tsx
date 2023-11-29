@@ -116,7 +116,7 @@ export const useSignalR = ({
     useEffect(() => {
       console.log('Starting SignalR connection')
       startSignalRConnection(url);
-    }, [startSignalRConnection])
+    }, [startSignalRConnection, url])
 
     return {
       sendMessage(methodName: string, message: any) : Promise<void> {

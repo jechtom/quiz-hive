@@ -1,4 +1,5 @@
 ﻿using QuizzHive.Server.DataLayer;
+using QuizzHive.Server.State;
 using System.Collections.Immutable;
 
 namespace QuizzHive.Server.Services

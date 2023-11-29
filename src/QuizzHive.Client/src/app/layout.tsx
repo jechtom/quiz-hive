@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import SignalRProvider, { SignalRProviderProps } from '../context/SignalRContext'
+import { ServerConnectionProvider } from '@/context/ServerConnectionContext'
+import ConnectionBanner from '@/components/StatusBanner'
+import { ServerApiProvider } from '@/context/ServerApiContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,10 +21,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <SignalRProvider baseUrl={baseUrl}>
-          {children}
-        </SignalRProvider>
+      <body className={inter.className + ' bg-gradient-to-br from-blue-300 to-cyan-200'}>
+        <ServerApiProvider baseUrl={baseUrl}>
+          <ServerConnectionProvider baseUrl={baseUrl}>
+            <ConnectionBanner />
+            {children}
+          </ServerConnectionProvider>
+        </ServerApiProvider>
       </body>
     </html>
   )

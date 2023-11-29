@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace QuizzHive.Server.Services
+namespace QuizzHive.Server.State
 {
     public record class Session
     {
@@ -16,27 +16,28 @@ namespace QuizzHive.Server.Services
 
         public object ResolveStateForClient(PlayerInSession player) => new
         {
-            Me = new {
-                IsNameSet = player.IsNameSet,
-                Name = player.Name,
+            Me = new
+            {
+                player.IsNameSet,
+                player.Name,
             },
             CurrentScreen = this switch
             {
                 _ when !player.IsNameSet => "SetName",
-                _ when this.CurrentSegment.Segment is SessionSegmentLobby => "Lobby",
-                _ when this.CurrentSegment.Segment is SessionSegmentQuizz => "Quizz",
+                _ when CurrentSegment.Segment is SessionSegmentLobby => "Lobby",
+                _ when CurrentSegment.Segment is SessionSegmentQuizz => "Quizz",
                 _ => "Wait"
             },
             PlayersCount = Players.Count(p => !p.Value.IsDisconnected && p.Value.IsNameSet),
             Players = Players.Where(p => !p.Value.IsDisconnected && p.Value.IsNameSet).Select(p => new
             {
-                Name = p.Value.Name
+                p.Value.Name
             }).ToArray(),
             Segment = new
             {
                 Id = CurrentSegment.SegmentId,
-                HasStarted = CurrentSegment.HasStarted,
-                HasEnded = CurrentSegment.HasEnded,
+                CurrentSegment.HasStarted,
+                CurrentSegment.HasEnded,
                 Type = CurrentSegment.Segment.GetType().Name
             }
         };
