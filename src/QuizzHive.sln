@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34316.72
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizzHive.Server", "QuizzHive.Server\QuizzHive.Server.csproj", "{4FA8852A-E71A-4129-86DF-F1E647B8223F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4FA8852A-E71A-4129-86DF-F1E647B8223F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FA8852A-E71A-4129-86DF-F1E647B8223F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FA8852A-E71A-4129-86DF-F1E647B8223F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FA8852A-E71A-4129-86DF-F1E647B8223F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BC1DAD64-90A0-449C-8E5C-29344A67EFFC}
+	EndGlobalSection
+EndGlobal
