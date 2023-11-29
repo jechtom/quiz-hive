@@ -4,7 +4,6 @@ import { SessionStateContext } from '@/context/SessionContext';
 import { ServerConnectionContext } from '@/context/ServerConnectionContext';
 import Image from 'next/image'
 import React, { useCallback, useContext, useState } from 'react';
-import { ServerApiContext } from '@/context/ServerApiContext';
 
 export default function JoinByCode() {
   const serverConnection = useContext(ServerConnectionContext);
@@ -20,7 +19,7 @@ export default function JoinByCode() {
 
   return (
     <main className="h-screen flex items-center justify-center">
-      <form onSubmit={ async (e) => { e.preventDefault(); await serverApi.joinByCode(joinCode); } }>
+      <form onSubmit={ async (e) => { e.preventDefault(); await serverConnection.proxy.enterCode(joinCode); } }>
         <div className="p-5">
           <label htmlFor="code" className="block font-medium leading-6 text-gray-900 text-center">
             Enter Code
