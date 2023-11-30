@@ -40,14 +40,14 @@ namespace QuizHive.Server.Hubs
                 // remove player from the session
                 await sessionActionDispatcher.TryDispatchActionAsync(
                     linkedSessionId,
-                    s => SessionActions.RemovePlayer(s, Context.ConnectionId)
+                    s => SessionActions.RemovePlayer(s, Context.ConnectionId, invalidateReconnect: false)
                 );
             }
 
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task EnterReconnectMessage(EnterReconnectMessage data)
+        public async Task SessionReconnect(EnterReconnectMessage data)
         {
             logger.LogDebug("Reconnect for: {SessionId}", data.SessionId);
 
@@ -67,17 +67,26 @@ namespace QuizHive.Server.Hubs
             bool success = false;
             try
             {
+                string? oldPlayerId = default;
+
                 // try add player to the session
                 (success, Session? session) = await sessionActionDispatcher.TryDispatchActionAsync(
                     data.SessionId,
-                    s => SessionActions.TryReconnect(s, Context.ConnectionId, data.ReconnectCode)
+                    s => SessionActions.TryReconnect(s, Context.ConnectionId, data.ReconnectCode, out oldPlayerId)
                 );
 
                 if (success)
                 {
                     session = session ?? throw new InvalidOperationException("Unexpected null.");
+
+                    if (oldPlayerId != null)
+                    {
+                        // old player should leave (can be still active in another tab)
+                        await Clients.Client(oldPlayerId).SendAsync(MessageCodes.SessionLeave);
+                    }
+
                     await Clients.Client(Context.ConnectionId)
-                        .SendAsync(nameof(Messages.SessionConnectedMessage),
+                        .SendAsync(MessageCodes.SessionConnect,
                             new SessionConnectedMessage(
                                 session.SessionId,
                                 session.Players[Context.ConnectionId].ReconnectCode
@@ -93,7 +102,7 @@ namespace QuizHive.Server.Hubs
             }
         }
 
-        public async Task EnterCodeMessage(string code)
+        public async Task SessionJoinWithCode(string code)
         {
             logger.LogDebug("Code from client: {Code}", code);
 
@@ -102,8 +111,7 @@ namespace QuizHive.Server.Hubs
             if(sessionId == null) 
             {
                 // session not found
-                await Clients.Client(Context.ConnectionId)
-                    .SendAsync(nameof(Messages.WrongJoinCodeMessage), new Messages.WrongJoinCodeMessage() { JoinCode = code });
+                await Clients.Client(Context.ConnectionId).SendAsync(MessageCodes.InvalidJoinCode);
                 return;
             }
 
@@ -126,7 +134,7 @@ namespace QuizHive.Server.Hubs
                 {
                     session = session ?? throw new InvalidOperationException("Unexpected null.");
                     await Clients.Client(Context.ConnectionId)
-                        .SendAsync(nameof(Messages.SessionConnectedMessage), 
+                        .SendAsync(MessageCodes.SessionConnect, 
                             new Messages.SessionConnectedMessage(
                                 session.SessionId,
                                 session.Players[Context.ConnectionId].ReconnectCode
@@ -134,9 +142,8 @@ namespace QuizHive.Server.Hubs
                 }
                 else
                 {
-                    // can't connect
-                    await Clients.Client(Context.ConnectionId)
-                        .SendAsync(nameof(Messages.WrongJoinCodeMessage), new Messages.WrongJoinCodeMessage() { JoinCode = code });
+                    // can't connect (session may be locked, reached players cap, etc.)
+                    await Clients.Client(Context.ConnectionId).SendAsync(MessageCodes.InvalidJoinCode);
                     return;
                 }
             }
@@ -149,7 +156,31 @@ namespace QuizHive.Server.Hubs
             }
         }
 
-        public async Task EnterNameMessage(string name)
+        public async Task SessionLeave(object _)
+        {
+            logger.LogInformation("Session leave client: {ClientId}", Context.ConnectionId);
+            if (!clientsManager.TryGetSessionLink(Context.ConnectionId, out string? linkedSessionId))
+            {
+                return;
+            }
+
+            (bool result, _) = await sessionActionDispatcher.TryDispatchActionAsync(
+                linkedSessionId,
+                s => SessionActions.RemovePlayer(s, Context.ConnectionId, invalidateReconnect: true)
+            );
+
+            if (!result)
+            {
+                // can't leave (maybe already left)
+                return;
+            }
+
+            // remove and notify
+            clientsManager.RemoveSessionLink(Context.ConnectionId, linkedSessionId);
+            await Clients.Client(Context.ConnectionId).SendAsync(MessageCodes.SessionLeave);
+        }
+
+        public async Task SetName(string name)
         {
             logger.LogInformation("Name from client: {Name}", name);
             if(!clientsManager.TryGetSessionLink(Context.ConnectionId, out string? linkedSessionId))
@@ -163,7 +194,7 @@ namespace QuizHive.Server.Hubs
             );
         }
 
-        public async Task EnterCommandMessage(string action)
+        public async Task HostCommand(string action)
         {
             logger.LogInformation("Action from client: {Action}", action);
             if (!clientsManager.TryGetSessionLink(Context.ConnectionId, out string? linkedSessionId))

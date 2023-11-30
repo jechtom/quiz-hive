@@ -5,7 +5,7 @@ import { useContext } from 'react';
 import JoinByCode from '@/components/JoinByCode';
 import EnterName from '@/components/EnterName';
 import Lobby from '@/components/Lobby';
-import { ServerConnectionContext } from '@/context/ServerConnectionContext';
+import { ServerConnectionContext, SessionConnectionState } from '@/context/ServerConnectionContext';
 import Wait from '@/components/Wait';
 import QuizAnswer from '@/components/QuizAnswer';
 
@@ -14,7 +14,7 @@ export default function Home() {
   const serverConnection = useContext(ServerConnectionContext);
 
   
-  if(!serverConnection.isConnectedToSession) {
+  if(serverConnection.sessionConnectionState != SessionConnectionState.Connected) {
     return (<JoinByCode />)
   } else if(sessionContext.currentScreen === 'EnterName') {
     return (<EnterName />)

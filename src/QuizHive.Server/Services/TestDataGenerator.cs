@@ -59,12 +59,13 @@ namespace QuizHive.Server.Services
             };
         }
 
-        public async Task DeleteAsync()
+        public Task DeleteAsync()
         {
             foreach (var f in Directory.GetFiles("bin/", "tmp.data-*.json"))
             {
                 File.Delete(f);
             }
+            return Task.CompletedTask;
         }
 
         public async Task GenerateAsync()

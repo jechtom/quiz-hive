@@ -19,7 +19,7 @@ export default function EnterName() {
 
   return (
     <main className="h-screen flex items-center justify-center">
-      <form onSubmit={ async (e) => { e.preventDefault(); await serverConnection.proxy.enterName(name); } }>
+      <form onSubmit={ async (e) => { e.preventDefault(); await serverConnection.proxy.setName(name); } } method="post">
         <div className="p-5">
           <Header>
             Enter Your Name
@@ -31,6 +31,7 @@ export default function EnterName() {
               name="code"
               id="code"
               value={name}
+              required
               onChange={e => setName(e.target.value)}
               className="block w-full shadow-lg rounded-md border-0 p-4 text-3xl text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
             />

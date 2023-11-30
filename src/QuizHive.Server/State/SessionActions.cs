@@ -40,15 +40,19 @@ namespace QuizHive.Server.State
             };
         }
 
-        public static Session TryReconnect(Session session, string newPlayerId, string reconnectCode)
+        public static Session TryReconnect(Session session, string newPlayerId, string reconnectCode, out string? oldPlayerId)
         {
             var player = session.Players.Values.SingleOrDefault(p => p.ReconnectCode == reconnectCode);
 
             if(player == null)
             {
                 // no player with given reconnect code
+                oldPlayerId = null;
                 return session;
             }
+
+            // send old player Id to send disconnect
+            oldPlayerId = player.Id;
 
             // reconnect
             return session with
@@ -63,7 +67,7 @@ namespace QuizHive.Server.State
             };
         }
 
-        public static Session RemovePlayer(Session session, string playerId)
+        public static Session RemovePlayer(Session session, string playerId, bool invalidateReconnect)
         {
             if (!session.Players.TryGetValue(playerId, out PlayerInSession? playerInSession))
             {
@@ -76,7 +80,8 @@ namespace QuizHive.Server.State
             {
                 Players = session.Players.SetItem(playerId, playerInSession with
                 {
-                    IsDisconnected = true
+                    IsDisconnected = true,
+                    ReconnectCode = invalidateReconnect ? Guid.NewGuid().ToString("N") : playerInSession.ReconnectCode
                 })
             };
         }
@@ -162,17 +167,13 @@ namespace QuizHive.Server.State
             switch (action)
             {
                 case string a when 
-                    a == HostControl.UnlockSession.Action 
-                    && session.CurrentSegment.Segment is SessionSegmentLobby 
-                    && !session.IsUnlocked:
+                    a == HostControl.UnlockSession.Action && session.CanChangeLock && !session.IsUnlocked:
                     return session with
                     {
                         IsUnlocked = true
                     };
                 case string a when
-                    a == HostControl.LockSession.Action
-                    && session.CurrentSegment.Segment is SessionSegmentLobby
-                    && session.IsUnlocked:
+                    a == HostControl.LockSession.Action && session.CanChangeLock && session.IsUnlocked:
                     return session with
                     {
                         IsUnlocked = false
@@ -196,6 +197,7 @@ namespace QuizHive.Server.State
 
             return session with
             {
+                IsUnlocked = session.IsUnlocked && (nextSegment is not SessionSegmentEnd /*lock on end segment*/),
                 CurrentSegment = new SessionSegmentProgress()
                 {
                     SegmentId = nextSegmentId,

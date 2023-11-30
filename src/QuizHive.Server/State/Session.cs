@@ -54,18 +54,25 @@ namespace QuizHive.Server.State
         public bool CanStart 
             => Players.Values.Any(IsActivePlayer) && CurrentSegment.Segment is SessionSegmentLobby;
 
+        public bool CanChangeLock // 
+            => CurrentSegment.Segment is not SessionSegmentEnd;
+
         private ImmutableList<HostControl> ResolveHostControls()
         {
+            var list = ImmutableList<HostControl>.Empty;
+            if (CanChangeLock)
+            {
+                list = list.Add(IsUnlocked ? HostControl.LockSession : HostControl.UnlockSession);
+            };
+            
             switch (CurrentSegment.Segment)
             {
                 case SessionSegmentLobby lobby:
-                    return [ 
-                            (IsUnlocked ? HostControl.LockSession : HostControl.UnlockSession),
-                            HostControl.Start
-                        ];
-                default:
-                    return ImmutableList<HostControl>.Empty;
+                    list = list.Add(HostControl.Start);
+                    break;
             }
+
+            return list;
         }
     }
 }

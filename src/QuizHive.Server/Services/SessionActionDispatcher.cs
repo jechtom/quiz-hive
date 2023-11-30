@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using QuizHive.Server.DataLayer;
 using QuizHive.Server.Hubs;
+using QuizHive.Server.Hubs.Messages;
 using QuizHive.Server.State;
 
 namespace QuizHive.Server.Services
@@ -59,7 +60,7 @@ namespace QuizHive.Server.Services
             foreach (var player in sessionUpdated.Players.Values.Where(p => !p.IsDisconnected))
             {
                 var state = sessionUpdated.ResolveStateForClient(player);
-                await hub.Clients.Client(player.Id).SendAsync("UpdateStateMessage", state);
+                await hub.Clients.Client(player.Id).SendAsync(MessageCodes.SessionStateUpdate, state);
             }
 
             return (true, sessionUpdated);
