@@ -1,4 +1,4 @@
-# Quizz Hive
+# Quiz Hive
 
 This is open source project for platform to host quizzes and polls to interact with your audience. This can be used for fun or for learning - for example on work meetings, team buildings, school classes or friends gatherings.
 
