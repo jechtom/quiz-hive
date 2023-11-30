@@ -6,8 +6,8 @@ import JoinByCode from '@/components/JoinByCode';
 import EnterName from '@/components/EnterName';
 import Lobby from '@/components/Lobby';
 import { ServerConnectionContext, SessionConnectionState } from '@/context/ServerConnectionContext';
+import QuizAnswer from '@/components/Quiz';
 import Wait from '@/components/Wait';
-import QuizAnswer from '@/components/QuizAnswer';
 
 export default function Home() {
   const sessionContext = useContext(SessionStateContext);
@@ -20,9 +20,15 @@ export default function Home() {
     return (<EnterName />)
   } else if(sessionContext.currentScreen === 'Lobby') {
     return (<Lobby />)
+  } else if(sessionContext.currentScreen === 'WaitForOthers') {
+    return (<Wait>Wait for others. 😎</Wait>)
+  } else if(sessionContext.currentScreen === 'WaitGetReady') {
+    return (<Wait>Get ready! 😯</Wait>)
   } else if(sessionContext.currentScreen === 'Wait') {
-    return (<Wait />)
-  } else if(sessionContext.currentScreen === 'QuizAnswer') {
+    return (<Wait>Waiting for the host... ⏳</Wait>)
+  } else if(sessionContext.currentScreen === 'End' && !sessionContext.me.isHost) {
+    return (<Wait>Thanks for playing. 👋</Wait>)
+  } else if(sessionContext.currentScreen === 'Quiz') {
     return (<QuizAnswer />)
   } else {
     return (

@@ -159,13 +159,13 @@ namespace QuizHive.Server.Hubs
         public async Task SessionLeave(object _)
         {
             logger.LogInformation("Session leave client: {ClientId}", Context.ConnectionId);
-            if (!clientsManager.TryGetSessionLink(Context.ConnectionId, out string? linkedSessionId))
+            if (!clientsManager.TryGetSessionLink(Context.ConnectionId, out string? sessionId))
             {
                 return;
             }
 
-            (bool result, _) = await sessionActionDispatcher.TryDispatchActionAsync(
-                linkedSessionId,
+            (bool result, Session? _) = await sessionActionDispatcher.TryDispatchActionAsync(
+                sessionId,
                 s => SessionActions.RemovePlayer(s, Context.ConnectionId, invalidateReconnect: true)
             );
 
@@ -176,7 +176,7 @@ namespace QuizHive.Server.Hubs
             }
 
             // remove and notify
-            clientsManager.RemoveSessionLink(Context.ConnectionId, linkedSessionId);
+            clientsManager.RemoveSessionLink(Context.ConnectionId, sessionId);
             await Clients.Client(Context.ConnectionId).SendAsync(MessageCodes.SessionLeave);
         }
 
@@ -191,6 +191,20 @@ namespace QuizHive.Server.Hubs
             await sessionActionDispatcher.TryDispatchActionAsync(
                 linkedSessionId,
                 s => SessionActions.PlayerSetName(s, Context.ConnectionId, name)
+            );
+        }
+
+        public async Task SetAnswer(SetAnswerMessage message)
+        {
+            logger.LogInformation("Name answer from client: {Answers}", message.Answers);
+            if (!clientsManager.TryGetSessionLink(Context.ConnectionId, out string? linkedSessionId))
+            {
+                return;
+            }
+
+            await sessionActionDispatcher.TryDispatchActionAsync(
+                linkedSessionId,
+                s => SessionActions.TryAnswer(s, Context.ConnectionId, message.Answers)
             );
         }
 

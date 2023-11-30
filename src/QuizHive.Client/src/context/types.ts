@@ -6,6 +6,14 @@ export interface ISessionState {
     currentScreen: string
     players: IPlayer[]
     segment: ISegment
+    quizSegment: IQuizSegment
+}
+
+export interface IQuizSegment {
+    answers: IAnswerOption[]
+    remainToAnswer: number
+    questionText: string
+    showAnswers: boolean
 }
 
 export interface IMe {
@@ -21,9 +29,14 @@ export interface IPlayer {
 
 export interface ISegment {
     id: string
-    hasStarted: boolean
     hasEnded: boolean
     type: string
+}
+
+export interface IAnswerOption {
+    text: string,
+    id: string,
+    isCorrect: boolean
 }
 
 export interface ISessionConnectedMessage {

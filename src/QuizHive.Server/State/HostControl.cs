@@ -14,6 +14,7 @@
 
         public static HostControl UnlockSession { get; } = new HostControl("unlock", "Unlock");
         public static HostControl LockSession { get; } = new HostControl("lock", "Lock");
-        public static HostControl Start { get; } = new HostControl("start", "Start");
+        public static HostControl Continue { get; } = new HostControl("continue", "Continue");
+        public static HostControl EndRound { get; } = new HostControl("end-round", "End round");
     }
 }

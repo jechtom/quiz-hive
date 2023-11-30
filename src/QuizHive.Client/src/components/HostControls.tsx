@@ -18,7 +18,7 @@ export default function HostControls() {
                         key={ "host-action-" + hc.action } 
                         type="button" 
                         className="text-gray-800 p-2 hover:bg-blue-200 ring-2 ring-gray-300 font-medium rounded-lg"
-                        onClick={ async () => await serverConnection.proxy.enterCommand(hc.action) }
+                        onClick={ async () => await serverConnection.proxy.hostCommand(hc.action) }
                     >{hc.text}</button>
                 ))}
             </div>
