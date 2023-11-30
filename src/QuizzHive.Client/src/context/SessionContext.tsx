@@ -8,8 +8,12 @@ export function CreateDefaultSessionState() : ISessionState {
         playersCount: 0,
         me: {
             isNameSet: false,
-            name: ''
+            name: '',
+            hostControls: [],
+            isHost: false
         },
+        joinCode: '',
+        isUnlocked: false,
         currentScreen: '',
         players: [],
         segment: {

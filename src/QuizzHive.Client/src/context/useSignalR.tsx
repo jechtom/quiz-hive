@@ -3,7 +3,7 @@ import * as signalR from '@microsoft/signalr'
 
 type Props = {
     url: string,
-    setConnectionState: Dispatch<SetStateAction<ConnectionState>>,
+    setConnectionState: (Dispatch<SetStateAction<ConnectionState>>),
     messageHandlers: Array<{
       message: string
       handler: (data: unknown[]) => void
@@ -111,7 +111,7 @@ export const useSignalR = ({
       )
   
       start()
-    }, [])
+    }, [messageHandlers, setConnectionState])
   
     useEffect(() => {
       console.log('Starting SignalR connection')

@@ -1,6 +1,8 @@
 export interface ISessionState {
     playersCount: number
     me: IMe
+    joinCode: string
+    isUnlocked: boolean
     currentScreen: string
     players: IPlayer[]
     segment: ISegment
@@ -9,6 +11,8 @@ export interface ISessionState {
 export interface IMe {
     isNameSet: boolean
     name: string
+    isHost: boolean
+    hostControls: IHostControl[]
 }
 
 export interface IPlayer {
@@ -22,7 +26,16 @@ export interface ISegment {
     type: string
 }
 
-export interface ISessionJoinResponse {
-    success: boolean
-    token: string
+export interface ISessionConnectedMessage {
+    sessionId: string
+    reconnectCode: string
+}
+
+export interface IAnswer {
+    answers: string[]
+}
+
+export interface IHostControl {
+    text: string
+    action: string
 }

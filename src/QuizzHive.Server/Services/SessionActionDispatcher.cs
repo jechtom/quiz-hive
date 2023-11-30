@@ -21,7 +21,7 @@ namespace QuizzHive.Server.Services
             this.hub = hub;
         }
 
-        public async Task<bool> TryDispatchActionAsync(string sessionId, Func<Session, Session> updateAction)
+        public async Task<(bool, Session?)> TryDispatchActionAsync(string sessionId, Func<Session, Session> updateAction)
         {
             Session? sessionUpdated;
 
@@ -44,7 +44,7 @@ namespace QuizzHive.Server.Services
 
                 if (sessionOriginal == sessionUpdated)
                 {
-                    return false; // no change
+                    return (false, default); // no change
                 }
 
                 (bool success, VersionKey newVersionKey) = await sessionRepository.TrySetAsync(sessionUpdated.SessionId, sessionUpdated, version);
@@ -62,7 +62,7 @@ namespace QuizzHive.Server.Services
                 await hub.Clients.Client(player.Id).SendAsync("UpdateStateMessage", state);
             }
 
-            return true;
+            return (true, sessionUpdated);
         }
     }
 }

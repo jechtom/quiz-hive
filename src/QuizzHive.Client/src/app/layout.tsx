@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className + ' bg-gradient-to-br from-blue-300 to-cyan-200'}>
+      <body className={inter.className + ' bg-gradient-to-br from-cyan-50  to-gray-100'}>
         <ServerConnectionProvider baseUrl={baseUrl}>
           <ConnectionBanner />
           {children}

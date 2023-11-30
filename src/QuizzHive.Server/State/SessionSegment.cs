@@ -18,7 +18,7 @@ namespace QuizzHive.Server.State
 
     }
 
-    public record class SessionSegmentQuizz : SessionSegment
+    public record class SessionSegmentQuiz : SessionSegment
     {
         public required Content QuestionContent { get; init; }
         public bool CanSelectedMultiple { get; init; } = false;

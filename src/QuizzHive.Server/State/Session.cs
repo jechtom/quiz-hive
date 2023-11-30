@@ -7,7 +7,7 @@ namespace QuizzHive.Server.State
         public string SessionId { get; init; } = Guid.NewGuid().ToString("N");
         public string? JoinCode { get; init; }
         public bool HasStarted { get; init; }
-        public bool CanConnect { get; init; }
+        public bool IsUnlocked { get; init; }
         public IImmutableList<SessionSegment> Segments { get; init; }
             = ImmutableList<SessionSegment>.Empty;
         public required SessionSegmentProgress CurrentSegment { get; init; }
@@ -20,18 +20,24 @@ namespace QuizzHive.Server.State
             {
                 player.IsNameSet,
                 player.Name,
+                player.IsHost,
+                HostControls = player.IsHost ? ResolveHostControls() : ImmutableList<HostControl>.Empty
             },
+            JoinCode = IsUnlocked ? JoinCode : string.Empty,
+            IsUnlocked = IsUnlocked,
             CurrentScreen = this switch
             {
-                _ when !player.IsNameSet => "SetName",
-                _ when CurrentSegment.Segment is SessionSegmentLobby => "Lobby",
-                _ when CurrentSegment.Segment is SessionSegmentQuizz => "Quizz",
+                _ when !player.IsNameSet => "EnterName",
+                _ when CurrentSegment.Segment is SessionSegmentLobby && player.IsHost => "Lobby",
+                _ when CurrentSegment.Segment is SessionSegmentQuiz && player.IsHost => "Quiz",
+                _ when CurrentSegment.Segment is SessionSegmentQuiz => "QuizAnswer",
+                _ when CurrentSegment.Segment is SessionSegmentEnd => "End",
                 _ => "Wait"
             },
-            PlayersCount = Players.Count(p => !p.Value.IsDisconnected && p.Value.IsNameSet),
-            Players = Players.Where(p => !p.Value.IsDisconnected && p.Value.IsNameSet).Select(p => new
+            PlayersCount = Players.Values.Count(IsActivePlayer),
+            Players = Players.Values.Where(IsActivePlayer).Select(p => new
             {
-                p.Value.Name
+                p.Name
             }).ToArray(),
             Segment = new
             {
@@ -41,5 +47,25 @@ namespace QuizzHive.Server.State
                 Type = CurrentSegment.Segment.GetType().Name
             }
         };
+
+        private static bool IsActivePlayer(PlayerInSession p)
+            => !p.IsDisconnected && p.IsNameSet && !p.IsHost;
+
+        public bool CanStart 
+            => Players.Values.Any(IsActivePlayer) && CurrentSegment.Segment is SessionSegmentLobby;
+
+        private ImmutableList<HostControl> ResolveHostControls()
+        {
+            switch (CurrentSegment.Segment)
+            {
+                case SessionSegmentLobby lobby:
+                    return [ 
+                            (IsUnlocked ? HostControl.LockSession : HostControl.UnlockSession),
+                            HostControl.Start
+                        ];
+                default:
+                    return ImmutableList<HostControl>.Empty;
+            }
+        }
     }
 }

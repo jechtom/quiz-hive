@@ -3,6 +3,7 @@
     public record PlayerInSession
     {
         public required string Id { get; init; }
+        public bool IsHost { get; init; }
         public string ReconnectCode { get; init; } = Guid.NewGuid().ToString("N");
         public required string Name { get; init; }
         public int TotalScore { get; init; }

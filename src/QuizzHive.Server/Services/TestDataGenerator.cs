@@ -21,7 +21,7 @@ namespace QuizzHive.Server.Services
         {
             IImmutableList<SessionSegment> segments = [
                         new SessionSegmentLobby(),
-                new SessionSegmentQuizz()
+                new SessionSegmentQuiz()
                 {
                     QuestionContent = new Content("Kolik je `10 + 20`?"),
                     AnswerOptions = [
@@ -31,7 +31,7 @@ namespace QuizzHive.Server.Services
                         new AnswerOption() { Content = new Content("40") }
                             ]
                 },
-                new SessionSegmentQuizz()
+                new SessionSegmentQuiz()
                 {
                     QuestionContent = new Content("What is the capital of France?"),
                     AnswerOptions = [
@@ -46,7 +46,7 @@ namespace QuizzHive.Server.Services
 
             return new Session()
             {
-                CanConnect = true,
+                IsUnlocked = true,
                 HasStarted = false,
                 JoinCode = "123456", //sessionCodeGenerator.GenerateCode(),
                 SessionId = "aaaaa",
@@ -54,16 +54,25 @@ namespace QuizzHive.Server.Services
                 CurrentSegment = new SessionSegmentProgress()
                 {
                     Segment = segments[0],
-                    SegmentId = "0"
+                    SegmentId = 0
                 }
             };
         }
 
-        public async Task GenerateAsync()
+        public async Task DeleteAsync()
         {
-            foreach(var f in Directory.GetFiles("bin/", "tmp.data-*.json"))
+            foreach (var f in Directory.GetFiles("bin/", "tmp.data-*.json"))
             {
                 File.Delete(f);
+            }
+        }
+
+        public async Task GenerateAsync()
+        {
+            if (await sessionRepo.TryGetAsync(session.SessionId) is (true, _, _))
+            {
+                // already exists
+                return;
             }
 
             (bool result, VersionKey version) = await sessionRepo.TrySetAsync(session.SessionId, session, VersionKey.NonExisting);
